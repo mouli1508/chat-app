@@ -3,7 +3,7 @@ import user from "../models/User.js";
 
 export const getAllContacts = async (req, res) => {
     try {
-        const loggedInUserId = req.user.id; // Assuming req.user contains the authenticated user's info
+        const loggedInUserId = req.user._id; // Assuming req.user contains the authenticated user's info
         const filteredUsers = await user.find({ _id: { $ne: loggedInUserId } }).select("-password");
         
         res.status(200).json(filteredUsers);
@@ -40,6 +40,19 @@ export const sendMessage = async (req, res) => {
         const { id: receiverId } = req.params;
         const { text, image } = req.body;
         const senderId = req.user._id;
+
+        if (!text && !image) {
+            return res.status(400).json({ message: "Message text or image is required" });
+        }
+
+        if (senderId.equals(receiverId)) {
+            return res.status(400).json({ message: "Cannot send message to yourself" });
+        }
+
+        const receiverExists = await user.exists({ _id: receiverId });
+        if (!receiverExists) {
+            return res.status(404).json({ message: "Receiver not found" });
+        }
 
         let imageUrl;
         if(image) {
