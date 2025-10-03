@@ -5,7 +5,8 @@ import { arcjetProtection } from "../middleware/arcjet.middleware.js";
 
 const router = express.Router();
 
-router.use(arcjetProtection, protectRoute); // Apply authentication middleware to all routes
+// router.use(arcjetProtection, protectRoute); // Apply authentication middleware to all routes
+router.use(protectRoute);
 
 router.get("/contacts", getAllContacts);
 router.get("/chats", getChatPartners);
